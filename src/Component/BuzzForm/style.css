@@ -1,0 +1,32 @@
+.title {
+	font-size: 24px;
+	font-weight: normal;
+	line-height: normal;
+	letter-spacing: 0em;
+	background: linear-gradient(90deg, #1c7cfc 0%, #83ff5f 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
+
+.desc {
+	/* Join the Buzz and stay in the loop. */
+	width: 198px;
+	height: 17px;
+	opacity: 1;
+	font-family: PingFangSC-Medium;
+	font-size: 12px;
+	font-weight: normal;
+	line-height: normal;
+	letter-spacing: 0em;
+	color: #606266;
+}
+
+.buttonDisabled {
+	&:disabled,
+	&[data-disabled] {
+		opacity: 30% !important;
+		background: rgba(28, 124, 252, 1);
+		color: var(--mantine-color-white);
+	}
+}
