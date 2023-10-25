@@ -2,16 +2,18 @@ import { Box, Button, LoadingOverlay, Modal, TextInput, Textarea } from "@mantin
 import { useDisclosure } from "@mantine/hooks";
 import { useForm } from "@mantine/form";
 import cls from "classnames";
-
+import { isNil } from "ramda";
 import buzzLogo from "@/assets/buzzhub-logo.png";
 import "./style.css";
+import { ToastContainer, toast } from "react-toastify";
 
 type IProps = {
 	handlePost: (content: string) => void;
 	isBuzzPosting: boolean;
+	baseConnector: any;
 };
 
-const BuzzForm = ({ handlePost, isBuzzPosting }: IProps) => {
+const BuzzForm = ({ handlePost, isBuzzPosting, baseConnector }: IProps) => {
 	const [showCreate, showCreateHandler] = useDisclosure(false);
 
 	const form = useForm({
@@ -20,6 +22,21 @@ const BuzzForm = ({ handlePost, isBuzzPosting }: IProps) => {
 		},
 	});
 	// console.log("isbuzz creating", isBuzzPosting);
+	const onStartCreate = () => {
+		// console.log("bbc", baseConnector);
+		if (isNil(baseConnector)) {
+			toast.warn("Please login to publish a buzz!");
+
+			return;
+		}
+		if (isNil(baseConnector?.metaid)) {
+			toast.warn("Please create metaid to publish a buzz!");
+
+			return;
+		}
+
+		showCreateHandler.open();
+	};
 	return (
 		<>
 			<div className="flex md:mx-[30%] mx-3 space-x-2 py-8 border-b border-[#CEE0E8]">
@@ -34,10 +51,22 @@ const BuzzForm = ({ handlePost, isBuzzPosting }: IProps) => {
 						size="lg"
 						radius="md"
 						placeholder="Say Something..."
-						onClick={showCreateHandler.open}
+						onClick={onStartCreate}
 					/>
 				</div>
 			</div>
+			<ToastContainer
+				position="bottom-right"
+				autoClose={5000}
+				hideProgressBar={false}
+				newestOnTop={false}
+				closeOnClick
+				rtl={false}
+				pauseOnFocusLoss
+				draggable
+				pauseOnHover
+				theme="light"
+			/>
 			<Modal
 				centered
 				withCloseButton={false}

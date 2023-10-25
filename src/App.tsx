@@ -1,19 +1,20 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BuzzForm from "./Component/BuzzForm";
 import BuzzList from "./Component/BuzzList";
 import Nav from "./Component/Nav";
 import { LocalWallet, MetaletWallet, connect } from "@metaid/metaid";
-import { Box, LoadingOverlay, Center } from "@mantine/core";
+import { Box, LoadingOverlay } from "@mantine/core";
 import { ToastContainer, toast } from "react-toastify";
-
+import { divide, isNil } from "ramda";
+import { produce } from "immer";
 import "./App.css";
 
 function App() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const [path, _] = useState(`m/44'/10001'/0'/0/0`);
+
 	const [Buzz, setBuzz] = useState(null);
-	const [baseConnector, setBaseConnector] = useState<any>(null);
+	const [baseConnector, setBaseConnector] = useState<any>();
 	const [hasLogin, setHasLogin] = useState(false);
 	const [isLogin, setIsLogin] = useState(false);
 	const [buzzList, setBuzzList] = useState([]);
@@ -21,26 +22,59 @@ function App() {
 	const [isBuzzliking, setIsBuzzliking] = useState(false);
 	const [isCreateMetaid, setIsCreateMetaid] = useState(false);
 	const [likeTxid, setLikeTxid] = useState("");
-	const handleLogin = async (type: "metalet" | "local", memonicValue?: string) => {
+	const [currentPage, setCurrentPage] = useState(1);
+	// const [totalPage, setTotalPage] = useState(1);
+	const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+	useEffect(() => {
+		getBuzzList({ page: 1, isNew: true });
+	}, []);
+
+	const handleLogin = async (type: "metalet" | "local", memonicValue?: string, path?: string) => {
 		setIsLogin(true);
+
 		let _wallet = null;
-		if (type === "metalet") {
-			_wallet = await MetaletWallet.create();
-		} else {
-			_wallet = await LocalWallet.create(memonicValue, path);
+		try {
+			if (type === "metalet") {
+				_wallet = await MetaletWallet.create();
+			} else {
+				_wallet = await LocalWallet.create(memonicValue, `m/44'/${path}'/0'/0/0`);
+			}
+		} catch (error) {
+			console.log("error", error);
+			toast.warn((error as { message: string; stack: string })?.message ?? "");
+			setIsLogin(false);
+			setHasLogin(false);
+			return;
 		}
-		const baseConnector = await connect(_wallet);
-		setBaseConnector(baseConnector);
+		try {
+			const baseConnector = await connect(_wallet);
+			setBaseConnector(baseConnector);
+			// if (!baseConnector.user) {
+			// 	toast.warn("connect canceled");
+			// 	return;
+			// }
+			console.log("base connector", baseConnector);
 
-		const handler = await baseConnector.use("buzz");
+			const handler = await baseConnector.use("buzz");
 
-		setBuzz(handler);
-		setHasLogin(true);
-		console.log(Buzz);
+			setBuzz(handler);
 
-		const { items } = await handler.list();
-		setBuzzList(items);
+			// const { items } = await handler.list(currentPage);
+			// setBuzzList(items);
+			// setCurrentPage(currentPage + 1);
+			setHasLogin(true);
+			setIsLogin(false);
+			return;
+		} catch (error) {
+			setIsLogin(false);
+			setHasLogin(false);
+
+			toast.warn("connect error");
+			return;
+		}
 	};
+	// console.log("islogin", isLogin, currentPage);
 	const handleLoginFinish = () => {
 		setIsLogin(false);
 	};
@@ -49,60 +83,131 @@ function App() {
 		console.log({ baseConnector });
 		setIsCreateMetaid(true);
 		if (!!baseConnector && !baseConnector.isMetaidValid()) {
-			const res = await baseConnector.createMetaid();
-			console.log({ res });
+			try {
+				await baseConnector.createMetaid();
+			} catch (error) {
+				console.log("error", error);
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				toast.warn("Error:" + (error as any).message);
+				setIsCreateMetaid(false);
+			}
+
 			setIsCreateMetaid(false);
 		}
 	};
 
-	const handleLogout = () => {
-		baseConnector.disconnect();
+	const handleLogout = async () => {
 		setHasLogin(false);
-		setBuzzList([]);
+		setBaseConnector(null);
+		// baseConnector.disconnect();
+		await getBuzzList({ page: 1, isNew: true });
+		// setBuzzList([]);
+		// setCurrentPage(1);
 	};
 
-	const getBuzzList = async () => {
+	const getBuzzList = async ({ page, isNew = false }: { page?: number; isNew?: boolean }) => {
+		let handler;
+		if (isNil(baseConnector)) {
+			handler = await (await connect()).use("buzz");
+		} else {
+			handler = await baseConnector.use("buzz");
+		}
+
+		if (isNew) {
+			const { items } = await handler.list(1);
+			setBuzzList(items);
+			setCurrentPage(1);
+			return;
+		}
 		// @ts-ignore
-		const { items } = await Buzz.list();
-		console.log({ items });
-		setBuzzList(items);
+		const { items } = await handler.list(page);
+		console.log(items);
+		// setBuzzList(items as any);
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		setBuzzList([...buzzList, ...items] as any);
 	};
 
 	const handlePost = async (content: string) => {
 		setIsBuzzPosting(true);
-		// @ts-ignore
-		await Buzz.create({ content });
+		try {
+			// @ts-ignore
+			const { txid } = await Buzz.create({ content });
+			console.log("create txid", txid);
 
-		setTimeout(async () => {
-			// const { items } = await Buzz.list();
-			// console.log("after post", { items });
-			// setBuzzList(items);
-			await getBuzzList();
+			setTimeout(async () => {
+				// const { items } = await Buzz.list();
+				// console.log("after post", { items });
+				// setBuzzList(items);
+				await getBuzzList({ isNew: true });
+				setIsBuzzPosting(false);
+				toast.success("Fantastic my old baby! You have successly send a buzz!");
+			}, 2000);
+		} catch (error) {
+			toast.warn("create error");
 			setIsBuzzPosting(false);
-			toast.success("Fantastic my old baby! You have successly send a buzz!");
-		}, 1000);
+		}
 	};
-	console.log("out", buzzList);
 
 	const onBuzzLike = async (hasMyLike: boolean, txid: string) => {
+		if (isNil(baseConnector)) {
+			toast.warn("Please login to give a like!");
+			return;
+		}
+
+		if (!!baseConnector && !baseConnector.isMetaidValid()) {
+			setIsBuzzliking(false);
+			toast.warn("Please create your metaid account first!");
+			return;
+		}
 		if (hasMyLike) {
+			setIsBuzzliking(false);
 			toast.warn("You have already liked that buzz!");
 			return;
 		}
 		setLikeTxid(txid);
 		setIsBuzzliking(true);
+
 		// @ts-ignore
+		// console.log("baseconnect", baseConnector, hasMyLike, txid);
 		const likeHandler = await baseConnector.use("like");
-		// @ts-ignore
-		console.log("hasmylike", hasMyLike);
-		await likeHandler.create({ likeTo: txid, isLike: "1" });
+		try {
+			console.log("begin");
+			const res = await likeHandler.create({ likeTo: txid, isLike: "1" });
+			console.log("res", res);
+			setTimeout(async () => {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				const idx = buzzList.findIndex((d: any) => d.txid === txid) + 1;
+				const findPage = Math.ceil(divide(idx, 15));
 
-		setTimeout(async () => {
-			await getBuzzList();
+				const handler = await baseConnector.use("buzz");
+				const { items: updateItems } = await handler.list(findPage);
+				console.log(idx, findPage, updateItems);
+				setBuzzList(
+					produce((d) => {
+						// @ts-ignore
+						d.splice((findPage - 1) * 15, 15, ...updateItems);
+						return d;
+					})
+				);
+
+				// await getBuzzList({ page: currentPage });
+				setIsBuzzliking(false);
+				toast.success("Buzz like Success! Thank you my old baby! ");
+			}, 2000);
+		} catch (error) {
+			// console.log("error", error);
 			setIsBuzzliking(false);
-		}, 2000);
-	};
 
+			// @ts-ignore
+			toast.warn((error as any).message);
+		}
+	};
+	const onLoadMore = async () => {
+		setIsLoadingMore(true);
+		await getBuzzList({ page: currentPage + 1 });
+		setIsLoadingMore(false);
+		setCurrentPage(currentPage + 1);
+	};
 	return (
 		<Box pos="relative">
 			<LoadingOverlay
@@ -121,22 +226,28 @@ function App() {
 					onCreateMetaid={handleCreateMetaid}
 					isCreateMetaid={isCreateMetaid}
 				/>
-				<BuzzForm handlePost={handlePost} isBuzzPosting={isBuzzPosting} />
-				{!hasLogin ? (
+				<BuzzForm
+					handlePost={handlePost}
+					isBuzzPosting={isBuzzPosting}
+					baseConnector={baseConnector}
+				/>
+				{/* {!hasLogin ? (
 					<Center className="x-3 md:mx-[30%] h-[calc(100vh_-_345px)]">
 						<Box className="text-[#B3AFB3] text-[20px]">
 							Please login to get the buzz list.
 						</Box>
 					</Center>
-				) : (
-					<BuzzList
-						buzzList={buzzList}
-						onBuzzLike={onBuzzLike}
-						isBuzzliking={isBuzzliking}
-						likeTxid={likeTxid}
-						currentMetaid={baseConnector?.user?.metaId}
-					/>
-				)}
+				) : ( */}
+				<BuzzList
+					buzzList={buzzList}
+					onBuzzLike={onBuzzLike}
+					isBuzzliking={isBuzzliking}
+					likeTxid={likeTxid}
+					currentMetaid={baseConnector?.metaid}
+					onLoadMore={onLoadMore}
+					isLoadingMore={isLoadingMore}
+				/>
+				{/* )} */}
 			</div>
 			<ToastContainer
 				position="bottom-right"

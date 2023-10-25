@@ -1,16 +1,27 @@
-import { ScrollArea } from "@mantine/core";
+import { Button, Loader, ScrollArea } from "@mantine/core";
 // import { buzzlist } from "../mock/buzzList";
 import BuzzItem from "./BuzzItem";
-
+import cls from "classnames";
+import { isEmpty } from "ramda";
 type IProps = {
 	buzzList: any;
 	onBuzzLike: (hasMyLike: boolean, txid: string) => void;
 	isBuzzliking: boolean;
 	likeTxid: string;
 	currentMetaid: string;
+	onLoadMore: () => void;
+	isLoadingMore: boolean;
 };
 
-const BuzzList = ({ buzzList, onBuzzLike, isBuzzliking, likeTxid, currentMetaid }: IProps) => {
+const BuzzList = ({
+	onLoadMore,
+	isLoadingMore,
+	buzzList,
+	onBuzzLike,
+	isBuzzliking,
+	likeTxid,
+	currentMetaid,
+}: IProps) => {
 	return (
 		<ScrollArea
 			offsetScrollbars={false}
@@ -32,9 +43,20 @@ const BuzzList = ({ buzzList, onBuzzLike, isBuzzliking, likeTxid, currentMetaid 
 							onBuzzLike={(hasMyLike: boolean) => onBuzzLike(hasMyLike, buzz.txid)}
 							isBuzzliking={isBuzzliking}
 							currentMetaid={currentMetaid}
+							createTime={buzz.createdAt}
 						/>
 					);
 				})}
+				{isLoadingMore ? (
+					<Loader className="self-center" type="bars" />
+				) : (
+					<Button
+						className={cls("self-center", { "!hidden": isEmpty(buzzList) })}
+						onClick={onLoadMore}
+					>
+						Load More
+					</Button>
+				)}
 			</div>
 		</ScrollArea>
 	);

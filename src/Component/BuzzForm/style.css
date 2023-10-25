@@ -3,7 +3,8 @@
 	font-weight: normal;
 	line-height: normal;
 	letter-spacing: 0em;
-	background: linear-gradient(90deg, #1c7cfc 0%, #83ff5f 100%);
+	background: linear-gradient(to right, #1c7cfc 0%, #83ff5f 100%);
+	max-width: fit-content;
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 	background-clip: text;
@@ -11,7 +12,8 @@
 
 .desc {
 	/* Join the Buzz and stay in the loop. */
-	width: 198px;
+	max-width: fit-content;
+
 	height: 17px;
 	opacity: 1;
 	font-family: PingFangSC-Medium;
