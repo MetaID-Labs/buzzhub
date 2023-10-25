@@ -5,7 +5,7 @@ import MetaletLogo from "@/assets/metalet.png";
 import { BsArrowRightShort } from "react-icons/bs";
 import { useState } from "react";
 import { parseAvatarWithMetaid, parseAvatarWithUri } from "@/utils/file";
-import { isNil } from "ramda";
+
 type IProps = {
 	handleLogin: (type: "local" | "metalet", memonicValue?: string, path?: string) => void;
 	hasLogin: boolean;
