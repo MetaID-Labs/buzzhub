@@ -12,7 +12,10 @@ As a result, with Metaid SDK,developers won't need to worry about the complexiti
 
 
 ## How to run?
-1. `git clone`
+1. clone this project
+```
+git clone https://github.com/MetaID-Labs/buzzhub.git
+```
 2. At your local terminal, cd to the project directory,install the dependencies and run the project 
 ```
 cd buzzhub && yarn && yarn dev
