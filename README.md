@@ -1,27 +1,23 @@
-# React + TypeScript + Vite
+# Buzzhub
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Introduction
+[Buzzhub](https://buzzhub.space) is a front-end social application based on the MetaID protocol and running on the MVC blockchain. You can think of it as a simplified version of [Show3](https://www.show3.io).
 
-Currently, two official plugins are available:
+The purpose of this project is to demonstrate to developers how to quickly build an on-chain application using the MetaID SDK.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## MetaID SDK Overview
+Metaid SDK is a library that aims to act as a data management middleware for interacting with the Microvision Chain and MetaID protocol. Specifically, it primarily handles the generation, association, and management of user data based on the MetaID protocol. Also, It is responsible for the on-chain storage of user data, which includes building the underlying UTXO transaction model, signatures, and broadcasting.
 
-## Expanding the ESLint configuration
+As a result, with Metaid SDK,developers won't need to worry about the complexities of the underlying blockchain model. Instead, they can focus their development efforts on the business layer.That is to say, developers can build a  complicated blockchain project as easily as a traditional CRUD project, significantly improving their development efficiency.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
+## How to run?
+1. `git clone`
+2. At your local terminal, cd to the project directory,install the dependencies and run the project 
+```
+cd buzzhub && yarn && yarn dev
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+
+
+ 

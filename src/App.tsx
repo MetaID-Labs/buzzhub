@@ -6,9 +6,10 @@ import Nav from "./Component/Nav";
 import { LocalWallet, MetaletWallet, connect } from "@metaid/metaid";
 import { Box, LoadingOverlay } from "@mantine/core";
 import { ToastContainer, toast } from "react-toastify";
-import { divide, isNil } from "ramda";
+import { divide, isEmpty, isNil } from "ramda";
 import { produce } from "immer";
 import "./App.css";
+import { AttachmentItem } from "./utils/file";
 
 function App() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -79,12 +80,12 @@ function App() {
 		setIsLogin(false);
 	};
 
-	const handleCreateMetaid = async () => {
+	const handleCreateMetaid = async (userName: string) => {
 		console.log({ baseConnector });
 		setIsCreateMetaid(true);
 		if (!!baseConnector && !baseConnector.isMetaidValid()) {
 			try {
-				await baseConnector.createMetaid();
+				await baseConnector.createMetaid({ name: userName });
 			} catch (error) {
 				console.log("error", error);
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -103,6 +104,8 @@ function App() {
 		await getBuzzList({ page: 1, isNew: true });
 		// setBuzzList([]);
 		// setCurrentPage(1);
+		setIsBuzzPosting(false);
+		setIsBuzzliking(false);
 	};
 
 	const getBuzzList = async ({ page, isNew = false }: { page?: number; isNew?: boolean }) => {
@@ -127,23 +130,34 @@ function App() {
 		setBuzzList([...buzzList, ...items] as any);
 	};
 
-	const handlePost = async (content: string) => {
+	const handlePost = async (content: string, attachments?: AttachmentItem[]) => {
 		setIsBuzzPosting(true);
 		try {
+			let body: any = { content };
+			if (!isNil(attachments) && !isEmpty(attachments)) {
+				let attachMetafileUri = [];
+				console.log("file", "start");
+				const fileHandler = await baseConnector.use("file");
+				for (const a of attachments) {
+					console.log("a.data", a.data);
+					const data = Buffer.from(a.data, "hex");
+					const { txid: id } = await fileHandler.create(data, { dataType: a.fileType });
+					attachMetafileUri.push("metafile://" + id);
+				}
+				body.attachments = attachMetafileUri;
+			}
+
 			// @ts-ignore
-			const { txid } = await Buzz.create({ content });
-			console.log("create txid", txid);
+			const { txid } = await Buzz.create(body);
 
 			setTimeout(async () => {
-				// const { items } = await Buzz.list();
-				// console.log("after post", { items });
-				// setBuzzList(items);
 				await getBuzzList({ isNew: true });
 				setIsBuzzPosting(false);
 				toast.success("Fantastic my old baby! You have successly send a buzz!");
 			}, 2000);
 		} catch (error) {
 			toast.warn("create error");
+			console.log("error", error);
 			setIsBuzzPosting(false);
 		}
 	};
@@ -171,9 +185,9 @@ function App() {
 		// console.log("baseconnect", baseConnector, hasMyLike, txid);
 		const likeHandler = await baseConnector.use("like");
 		try {
-			console.log("begin");
+			// console.log("begin");
 			const res = await likeHandler.create({ likeTo: txid, isLike: "1" });
-			console.log("res", res);
+			// console.log("res", res);
 			setTimeout(async () => {
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				const idx = buzzList.findIndex((d: any) => d.txid === txid) + 1;

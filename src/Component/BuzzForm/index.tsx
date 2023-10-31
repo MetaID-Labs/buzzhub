@@ -6,9 +6,11 @@ import { isNil } from "ramda";
 import buzzLogo from "@/assets/buzzhub-logo.png";
 import "./style.css";
 import { ToastContainer, toast } from "react-toastify";
+import ImageDropZone from "./ImageDropZone";
+import { AttachmentItem } from "@/utils/file";
 
 type IProps = {
-	handlePost: (content: string) => void;
+	handlePost: (content: string, attachments?: AttachmentItem[]) => void;
 	isBuzzPosting: boolean;
 	baseConnector: any;
 };
@@ -16,9 +18,10 @@ type IProps = {
 const BuzzForm = ({ handlePost, isBuzzPosting, baseConnector }: IProps) => {
 	const [showCreate, showCreateHandler] = useDisclosure(false);
 
-	const form = useForm({
+	const form = useForm<{ content: string; attachments: AttachmentItem[] }>({
 		initialValues: {
 			content: "",
+			attachments: [],
 		},
 	});
 	// console.log("isbuzz creating", isBuzzPosting);
@@ -36,6 +39,17 @@ const BuzzForm = ({ handlePost, isBuzzPosting, baseConnector }: IProps) => {
 		}
 
 		showCreateHandler.open();
+	};
+
+	const handleBuzzSubmit = async (values: { content: string; attachments: AttachmentItem[] }) => {
+		await handlePost(values.content, values?.attachments);
+		form.setValues({
+			content: "",
+			attachments: [],
+		});
+		if (!isBuzzPosting) {
+			showCreateHandler.close();
+		}
 	};
 	return (
 		<>
@@ -89,17 +103,7 @@ const BuzzForm = ({ handlePost, isBuzzPosting, baseConnector }: IProps) => {
 						loaderProps={{ type: "bars" }}
 					/>
 					{/* ...other content */}
-					<form
-						onSubmit={form.onSubmit(async (values) => {
-							await handlePost(values.content);
-
-							console.log(values);
-							form.setValues({ content: "" });
-							if (!isBuzzPosting) {
-								showCreateHandler.close();
-							}
-						})}
-					>
+					<form onSubmit={form.onSubmit(handleBuzzSubmit)}>
 						<Textarea
 							// value={content}
 							minRows={10}
@@ -111,6 +115,7 @@ const BuzzForm = ({ handlePost, isBuzzPosting, baseConnector }: IProps) => {
 							// onChange={(event) => setContent(event.currentTarget.value)}
 							{...form.getInputProps("content")}
 						/>
+						<ImageDropZone {...form.getInputProps("attachments")} />
 						<Button
 							fullWidth
 							size="xl"

@@ -5,6 +5,7 @@ import { parseAvatarWithMetaid, parseAvatarWithUri } from "@/utils/file";
 import { LikeItem } from "@/type/buzz";
 import dayjs from "dayjs";
 import cls from "classnames";
+import { parseMetaFile } from "../utils/file";
 type Iprops = {
 	userName: string;
 	content: string;
@@ -17,6 +18,7 @@ type Iprops = {
 	likeTxid: string;
 	currentMetaid: string;
 	createTime: number;
+	attachments: string[];
 };
 
 const BuzzItem = ({
@@ -31,11 +33,15 @@ const BuzzItem = ({
 	likeTxid,
 	currentMetaid,
 	createTime,
+	attachments,
 }: Iprops) => {
 	const hasMyLike = !!likes?.find((d) => d?.metaId == currentMetaid);
 	// console.log("has", hasMyLike, currentMetaid);
 	return (
-		<div className="border-b border-[rgba(0, 0, 0, 0.03)] py-4 flex flex-col space-y-2">
+		<div
+			className="border-b border-[rgba(0, 0, 0, 0.03)] py-4 flex flex-col space-y-2"
+			key={txid}
+		>
 			<div className="flex justify-between">
 				<div className="flex space-x-2 items-center">
 					<Avatar
@@ -89,6 +95,10 @@ const BuzzItem = ({
 
 			<div className="text-[#303133]">{content} </div>
 
+			{(attachments ?? []).map((d) => {
+				// console.log(parseMetaFile(d), "ss");
+				return <img key={d} src={parseMetaFile(d)} />;
+			})}
 			<div className="flex justify-between text-[#909399] items-center text-[10px]">
 				<div>{dayjs(createTime).format("YYYY-MM-DD HH:mm:ss")}</div>
 				<div className="cursor-pointer" title={txid}>

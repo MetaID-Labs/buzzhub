@@ -12,7 +12,7 @@ type IProps = {
 	accountData: any;
 	onLogout: () => void;
 	onLoginFinish: () => void;
-	onCreateMetaid: () => void;
+	onCreateMetaid: (userName: string) => void;
 	isCreateMetaid: boolean;
 };
 
@@ -28,8 +28,10 @@ const Nav = ({
 	const [showConnect, showConnectHandler] = useDisclosure(false);
 	const [opened, setOpened] = useState(false);
 	const [showMemonic, memonicHandler] = useDisclosure(false);
+	const [showUserNameConfig, userNameHandler] = useDisclosure(false);
 	const [memonicValue, setMemonicValue] = useState("");
 	const [path, setPath] = useState("10001");
+	const [userName, setUserName] = useState("");
 	const handleMemonicChange = (v: string) => {
 		setMemonicValue(v);
 	};
@@ -42,7 +44,7 @@ const Nav = ({
 		memonicHandler.close();
 		setMemonicValue("");
 	};
-	console.log("haslogin", hasLogin, accountData);
+	// console.log("haslogin", hasLogin, accountData);
 	return (
 		<>
 			<div className=" h-[60px] md:px-[30%] px-3 flex justify-end py-3 shadow-xl shadow-[#c6dfea]">
@@ -100,7 +102,7 @@ const Nav = ({
 							<Button
 								loading={isCreateMetaid}
 								variant="subtle"
-								onClick={onCreateMetaid}
+								onClick={userNameHandler.open}
 							>
 								Create MetaIdUser
 							</Button>
@@ -108,6 +110,44 @@ const Nav = ({
 					</div>
 				)}
 			</div>
+
+			<Modal
+				centered
+				withCloseButton={false}
+				opened={showUserNameConfig}
+				onClose={() => {
+					userNameHandler.close();
+					setUserName("");
+				}}
+				title={"Set UserName"}
+			>
+				<TextInput
+					placeholder="please enter your username"
+					value={userName}
+					// error={isEmpty(userName)}
+					onChange={(e) => setUserName(e.currentTarget.value)}
+				/>
+				<div className="flex space-x-2 justify-end mt-4">
+					<Button
+						onClick={() => {
+							onCreateMetaid(userName);
+							userNameHandler.close();
+						}}
+					>
+						Confirm
+					</Button>
+					<Button
+						variant="light"
+						color="red"
+						onClick={() => {
+							userNameHandler.close();
+							setUserName("");
+						}}
+					>
+						Cancel
+					</Button>
+				</div>
+			</Modal>
 
 			<Modal
 				centered

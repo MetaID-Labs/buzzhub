@@ -30,6 +30,7 @@ const BuzzList = ({
 			{/* <button onClick={getBuzzList}>test buzz</button> */}
 			<div className="pl-3 border-t border-[rgba(0, 0, 0, 0.03)] flex flex-col space-y-4 py-8">
 				{buzzList.map((buzz: any) => {
+					// console.log("txid", buzz?.txid);
 					return (
 						<BuzzItem
 							key={buzz.txid}
@@ -44,6 +45,7 @@ const BuzzList = ({
 							isBuzzliking={isBuzzliking}
 							currentMetaid={currentMetaid}
 							createTime={buzz.createdAt}
+							attachments={buzz.body.attachments}
 						/>
 					);
 				})}
