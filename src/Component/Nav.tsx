@@ -5,6 +5,9 @@ import MetaletLogo from "@/assets/metalet.png";
 import { BsArrowRightShort } from "react-icons/bs";
 import { useState } from "react";
 import { parseAvatarWithMetaid, parseAvatarWithUri } from "@/utils/file";
+import { AiFillGithub } from "react-icons/ai";
+import { toast } from "react-toastify";
+import { isNil } from "ramda";
 
 type IProps = {
 	handleLogin: (type: "local" | "metalet", memonicValue?: string, path?: string) => void;
@@ -47,7 +50,13 @@ const Nav = ({
 	// console.log("haslogin", hasLogin, accountData);
 	return (
 		<>
-			<div className=" h-[60px] md:px-[30%] px-3 flex justify-end py-3 shadow-xl shadow-[#c6dfea]">
+			<div className=" h-[60px] md:px-[30%] px-3 flex justify-end py-3 shadow-xl shadow-[#c6dfea] items-center">
+				<AiFillGithub
+					className="cursor-pointer mr-2"
+					onClick={() => {
+						window.open("https://github.com/MetaID-Labs/buzzhub");
+					}}
+				/>
 				{!hasLogin ? (
 					<Button
 						variant="transparent"
@@ -174,9 +183,28 @@ const Nav = ({
 							label: "!w-full !flex !justify-between",
 						}}
 						onClick={async () => {
-							onLoginEndEffect();
-							await handleLogin("metalet");
-							onLoginFinish();
+							const userAgent = navigator.userAgent;
+							console.log(userAgent.includes("Chrome"));
+
+							console.log((window as any)?.metaidwallet);
+							if (!userAgent.includes("Chrome")) {
+								toast.warn(
+									"Please use this application on the desktop version of Chrome."
+								);
+							} else {
+								if (isNil((window as any)?.metaidwallet)) {
+									toast.warn("Please install Metalet Wallet extension first.");
+									setTimeout(() => {
+										window.open(
+											"https://chrome.google.com/webstore/detail/metalet/lbjapbcmmceacocpimbpbidpgmlmoaao"
+										);
+									}, 2000);
+								} else {
+									onLoginEndEffect();
+									await handleLogin("metalet");
+									onLoginFinish();
+								}
+							}
 						}}
 					>
 						<div className="flex space-x-2 items-center">

@@ -8,7 +8,7 @@ type IProps = {
 	onBuzzLike: (hasMyLike: boolean, txid: string) => void;
 	isBuzzliking: boolean;
 	likeTxid: string;
-	currentMetaid: string;
+	loginMetaid: string;
 	onLoadMore: () => void;
 	isLoadingMore: boolean;
 };
@@ -20,7 +20,7 @@ const BuzzList = ({
 	onBuzzLike,
 	isBuzzliking,
 	likeTxid,
-	currentMetaid,
+	loginMetaid,
 }: IProps) => {
 	return (
 		<ScrollArea
@@ -43,7 +43,7 @@ const BuzzList = ({
 							avatarUri={buzz.user.avatar}
 							onBuzzLike={(hasMyLike: boolean) => onBuzzLike(hasMyLike, buzz.txid)}
 							isBuzzliking={isBuzzliking}
-							currentMetaid={currentMetaid}
+							loginMetaid={loginMetaid}
 							createTime={buzz.createdAt}
 							attachments={buzz.body.attachments}
 						/>

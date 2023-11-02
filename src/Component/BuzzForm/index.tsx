@@ -58,7 +58,9 @@ const BuzzForm = ({ handlePost, isBuzzPosting, baseConnector }: IProps) => {
 				<div className="flex-1">
 					<div>
 						<div className="title">BuzzHub</div>
-						<div className="desc">Join the Buzz and stay in the loop.</div>
+						<div className="desc">
+							An open source twitter-like DApp based on MetaID and MVC.
+						</div>
 					</div>
 					<TextInput
 						classNames={{ root: "mt-5", input: "border-0" }}

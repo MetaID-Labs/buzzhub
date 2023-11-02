@@ -90,7 +90,7 @@ export function FileToAttachmentItem(file: File, encrypt: IsEncrypt = IsEncrypt.
 					const wordArray = CryptoJs.lib.WordArray.create(reader.result);
 					// @ts-ignore
 					const buffer = Buffer.from(reader.result);
-					console.log("buffer", buffer, reader.result);
+					// console.log("buffer", buffer, reader.result);
 					hex += buffer.toString("hex"); // 更新hex
 					// 增量更新计算结果
 					sha256Algo.update(wordArray); // 更新hash

@@ -8,8 +8,10 @@ import { Box, LoadingOverlay } from "@mantine/core";
 import { ToastContainer, toast } from "react-toastify";
 import { divide, isEmpty, isNil } from "ramda";
 import { produce } from "immer";
+
 import "./App.css";
 import { AttachmentItem } from "./utils/file";
+import { Transaction } from "node_modules/@metaid/metaid/dist/wallets/wallet";
 
 function App() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -61,9 +63,6 @@ function App() {
 
 			setBuzz(handler);
 
-			// const { items } = await handler.list(currentPage);
-			// setBuzzList(items);
-			// setCurrentPage(currentPage + 1);
 			setHasLogin(true);
 			setIsLogin(false);
 			return;
@@ -134,26 +133,41 @@ function App() {
 		setIsBuzzPosting(true);
 		try {
 			let body: any = { content };
+			let fileTransactions: Transaction[] = [];
 			if (!isNil(attachments) && !isEmpty(attachments)) {
 				let attachMetafileUri = [];
-				console.log("file", "start");
+				// console.log("file", "start");
 				const fileHandler = await baseConnector.use("file");
+				console.log("attachments", attachments);
 				for (const a of attachments) {
-					console.log("a.data", a.data);
+					// console.log("a.data", a.data);
 					const data = Buffer.from(a.data, "hex");
-					const { txid: id } = await fileHandler.create(data, { dataType: a.fileType });
-					attachMetafileUri.push("metafile://" + id);
+					const { transactions: txs } = await fileHandler.create(data, {
+						dataType: a.fileType,
+						signMessage: "upload file",
+						serialAction: "combo",
+						transactions: fileTransactions,
+					});
+					attachMetafileUri.push(
+						"metafile://" + txs[txs.length - 1].txComposer.getTxId()
+					);
+					fileTransactions = txs;
+					console.log("file ", fileTransactions);
 				}
 				body.attachments = attachMetafileUri;
 			}
 
 			// @ts-ignore
-			const { txid } = await Buzz.create(body);
+			const { txid } = await Buzz.create(body, {
+				signMessage: "create buzz",
+				serialAction: "finish",
+				transactions: fileTransactions,
+			});
 
 			setTimeout(async () => {
 				await getBuzzList({ isNew: true });
 				setIsBuzzPosting(false);
-				toast.success("Fantastic my old baby! You have successly send a buzz!");
+				toast.success("You have successly send a buzz!");
 			}, 2000);
 		} catch (error) {
 			toast.warn("create error");
@@ -186,7 +200,10 @@ function App() {
 		const likeHandler = await baseConnector.use("like");
 		try {
 			// console.log("begin");
-			const res = await likeHandler.create({ likeTo: txid, isLike: "1" });
+			const res = await likeHandler.create(
+				{ likeTo: txid, isLike: "1" },
+				{ signMessage: "like buzz" }
+			);
 			// console.log("res", res);
 			setTimeout(async () => {
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -206,7 +223,7 @@ function App() {
 
 				// await getBuzzList({ page: currentPage });
 				setIsBuzzliking(false);
-				toast.success("Buzz like Success! Thank you my old baby! ");
+				toast.success("Buzz like Success! ");
 			}, 2000);
 		} catch (error) {
 			// console.log("error", error);
@@ -257,7 +274,7 @@ function App() {
 					onBuzzLike={onBuzzLike}
 					isBuzzliking={isBuzzliking}
 					likeTxid={likeTxid}
-					currentMetaid={baseConnector?.metaid}
+					loginMetaid={baseConnector?.metaid}
 					onLoadMore={onLoadMore}
 					isLoadingMore={isLoadingMore}
 				/>
