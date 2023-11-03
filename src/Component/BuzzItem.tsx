@@ -10,6 +10,7 @@ import { useClipboard, useDisclosure } from "@mantine/hooks";
 import { toast } from "react-toastify";
 import { connect } from "@metaid/metaid";
 import { useState } from "react";
+import { Image } from "@mantine/core";
 type Iprops = {
 	userName: string;
 	content: string;
@@ -139,10 +140,12 @@ const BuzzItem = ({
 					)}
 				</div>
 
-				{(attachments ?? []).map((d) => {
-					// console.log(parseMetaFile(d), "ss");
-					return <img key={d} src={parseMetaFile(d)} />;
-				})}
+				<div className="grid grid-cols-3 gap-4 place-items-center	">
+					{(attachments ?? []).map((d) => {
+						// console.log(parseMetaFile(d), "ss");
+						return <Image key={d} src={parseMetaFile(d)} />;
+					})}
+				</div>
 				<div className="flex justify-between text-[#909399] items-center text-[10px]">
 					<div>{dayjs(createTime).format("YYYY-MM-DD HH:mm:ss")}</div>
 					<div className="flex space-x-1 items-center">
