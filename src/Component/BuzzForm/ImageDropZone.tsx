@@ -1,12 +1,7 @@
 import { useState } from "react";
 import { Text, Image, SimpleGrid } from "@mantine/core";
 import { Dropzone, IMAGE_MIME_TYPE, FileWithPath } from "@mantine/dropzone";
-import {
-	AttachmentItem,
-	FileToAttachmentItem,
-	FileToBinaryData,
-	compressImage,
-} from "@/utils/file";
+import { AttachmentItem, FileToAttachmentItem, compressImage } from "@/utils/file";
 
 type Iprops = {
 	onChange: (attachments: (string | AttachmentItem)[]) => void;

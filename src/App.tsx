@@ -200,10 +200,7 @@ function App() {
 		const likeHandler = await baseConnector.use("like");
 		try {
 			// console.log("begin");
-			const res = await likeHandler.create(
-				{ likeTo: txid, isLike: "1" },
-				{ signMessage: "like buzz" }
-			);
+			await likeHandler.create({ likeTo: txid, isLike: "1" }, { signMessage: "like buzz" });
 			// console.log("res", res);
 			setTimeout(async () => {
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -277,6 +274,7 @@ function App() {
 					loginMetaid={baseConnector?.metaid}
 					onLoadMore={onLoadMore}
 					isLoadingMore={isLoadingMore}
+					buzzHandler={Buzz}
 				/>
 				{/* )} */}
 			</div>

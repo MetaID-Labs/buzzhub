@@ -1,4 +1,4 @@
-import { Avatar, Box, LoadingOverlay } from "@mantine/core";
+import { Avatar, Box, LoadingOverlay, Modal } from "@mantine/core";
 import { AiTwotoneHeart, AiOutlineHeart } from "react-icons/ai";
 import { PiCopyLight } from "react-icons/pi";
 import { parseAvatarWithMetaid, parseAvatarWithUri } from "@/utils/file";
@@ -6,8 +6,10 @@ import { LikeItem } from "@/type/buzz";
 import dayjs from "dayjs";
 import cls from "classnames";
 import { parseMetaFile } from "../utils/file";
-import { useClipboard } from "@mantine/hooks";
-import { ToastContainer, toast } from "react-toastify";
+import { useClipboard, useDisclosure } from "@mantine/hooks";
+import { toast } from "react-toastify";
+import { connect } from "@metaid/metaid";
+import { useState } from "react";
 type Iprops = {
 	userName: string;
 	content: string;
@@ -21,6 +23,8 @@ type Iprops = {
 	loginMetaid: string;
 	createTime: number;
 	attachments: string[];
+	isfull: boolean;
+	buzzHandler: any;
 };
 
 const BuzzItem = ({
@@ -36,10 +40,22 @@ const BuzzItem = ({
 	loginMetaid,
 	createTime,
 	attachments,
+	isfull,
+	buzzHandler,
 }: Iprops) => {
+	const [showFullBuzz, showFullBuzzHandler] = useDisclosure(false);
+	const [fullContent, setFullContent] = useState("");
 	const hasMyLike = !!likes?.find((d) => d?.metaId == loginMetaid);
 	// console.log("has", hasMyLike, loginMetaid);
 	const clipboard = useClipboard({ timeout: 500 });
+	const onGetFullContent = async (txid: string) => {
+		console.log("txid", txid);
+		const _buzzHandler = (await (await connect()).use("buzz")) ?? buzzHandler;
+		const buzz = await _buzzHandler.one(txid);
+		// console.log(buzz);
+		showFullBuzzHandler.open();
+		setFullContent(buzz?.content ?? "");
+	};
 	return (
 		<>
 			<div
@@ -111,7 +127,17 @@ const BuzzItem = ({
 					</Box>
 				</div>
 
-				<div className="text-[#303133]">{content} </div>
+				<div className="text-[#303133]">
+					{content}{" "}
+					{!isfull && (
+						<span
+							className="cursor-pointer text-slate-500"
+							onClick={() => onGetFullContent(txid)}
+						>
+							view all
+						</span>
+					)}
+				</div>
 
 				{(attachments ?? []).map((d) => {
 					// console.log(parseMetaFile(d), "ss");
@@ -139,6 +165,14 @@ const BuzzItem = ({
 					</div>
 				</div>
 			</div>
+			<Modal
+				opened={showFullBuzz}
+				onClose={showFullBuzzHandler.close}
+				withCloseButton={false}
+				centered
+			>
+				{fullContent}
+			</Modal>
 		</>
 	);
 };

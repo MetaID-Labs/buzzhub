@@ -81,9 +81,9 @@ export async function compressImage(image: File) {
 
 // 降文件转为 AttachmentItem， 便于操作/上链
 export function FileToAttachmentItem(file: File, encrypt: IsEncrypt = IsEncrypt.No) {
-	return new Promise<AttachmentItem>(async (resolve, reject) => {
+	return new Promise<AttachmentItem>(async (resolve) => {
 		function readResult(blob: Blob) {
-			return new Promise<void>((resolve, reject) => {
+			return new Promise<void>((resolve) => {
 				const reader = new FileReader();
 				reader.onload = () => {
 					// @ts-ignore
@@ -120,9 +120,9 @@ export function FileToAttachmentItem(file: File, encrypt: IsEncrypt = IsEncrypt.
 	});
 }
 export function FileToBinaryData(file: File, encrypt: IsEncrypt = IsEncrypt.No) {
-	return new Promise<AttachmentItem>(async (resolve, reject) => {
+	return new Promise<AttachmentItem>(async (resolve) => {
 		function readResult(file: File) {
-			return new Promise<void>((resolve, reject) => {
+			return new Promise<void>((resolve) => {
 				const reader = new FileReader();
 				reader.readAsBinaryString(file);
 				reader.onload = () => {

@@ -11,6 +11,7 @@ type IProps = {
 	loginMetaid: string;
 	onLoadMore: () => void;
 	isLoadingMore: boolean;
+	buzzHandler: any;
 };
 
 const BuzzList = ({
@@ -21,6 +22,7 @@ const BuzzList = ({
 	isBuzzliking,
 	likeTxid,
 	loginMetaid,
+	buzzHandler,
 }: IProps) => {
 	return (
 		<ScrollArea
@@ -46,6 +48,8 @@ const BuzzList = ({
 							loginMetaid={loginMetaid}
 							createTime={buzz.createdAt}
 							attachments={buzz.body.attachments}
+							isfull={buzz.isFull}
+							buzzHandler={buzzHandler}
 						/>
 					);
 				})}

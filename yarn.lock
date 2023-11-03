@@ -510,8 +510,10 @@
   dependencies:
     inquirer "^9.2.11"
 
-"@metaid/metaid@file:../../packages/metaid":
-  version "0.1.7"
+"@metaid/metaid@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@metaid/metaid/-/metaid-0.2.1.tgz#07d66b71ca39630b1af158ef27104e1e46f19427"
+  integrity sha512-ZyGF9dFxCXYnZdcQa9H5lL7oHuOLqvDw28MVUJp+6ZlfdjbYi/wZSYWH7RJQI54+tuol3LOGceqdN83czMpPNw==
   dependencies:
     "@metaid/metaid-cli" "0.0.2"
     axios "^1.5.0"
