@@ -214,7 +214,7 @@ const Nav = ({
 						<BsArrowRightShort />
 					</Button>
 				</div>
-				<Box>
+				{/* <Box>
 					<Button
 						fullWidth
 						size="xl"
@@ -262,7 +262,7 @@ const Nav = ({
 							Continue
 						</Button>
 					</Collapse>
-				</Box>
+				</Box> */}
 			</Modal>
 		</>
 	);
