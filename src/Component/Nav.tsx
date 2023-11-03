@@ -1,4 +1,5 @@
-import { Avatar, Box, Button, Collapse, Modal, Popover, TextInput, Textarea } from "@mantine/core";
+import { Avatar, Button, Modal, Popover, TextInput } from "@mantine/core";
+// import {  Box,  Collapse,   Textarea } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { RiWalletFill } from "react-icons/ri";
 import MetaletLogo from "@/assets/metalet.png";
@@ -30,24 +31,23 @@ const Nav = ({
 }: IProps) => {
 	const [showConnect, showConnectHandler] = useDisclosure(false);
 	const [opened, setOpened] = useState(false);
-	const [showMemonic, memonicHandler] = useDisclosure(false);
 	const [showUserNameConfig, userNameHandler] = useDisclosure(false);
-	const [memonicValue, setMemonicValue] = useState("");
-	const [path, setPath] = useState("10001");
+	// const [showMemonic, memonicHandler] = useDisclosure(false);
+	// const [memonicValue, setMemonicValue] = useState("");
+	// const [path, setPath] = useState("10001");
 	const [userName, setUserName] = useState("");
-	const handleMemonicChange = (v: string) => {
-		setMemonicValue(v);
-	};
-	const handlePathChange = (v: string) => {
-		setPath(v);
-	};
+	// const handleMemonicChange = (v: string) => {
+	// 	setMemonicValue(v);
+	// };
+	// const handlePathChange = (v: string) => {
+	// 	setPath(v);
+	// };
 
 	const onLoginEndEffect = () => {
 		showConnectHandler.close();
-		memonicHandler.close();
-		setMemonicValue("");
+		// memonicHandler.close();
+		// setMemonicValue("");
 	};
-	// console.log("haslogin", hasLogin, accountData);
 	return (
 		<>
 			<div className=" h-[60px] md:px-[30%] px-3 flex justify-end py-3 shadow-xl shadow-[#c6dfea] items-center">
